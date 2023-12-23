@@ -1,9 +1,9 @@
 package at.technikum.apps.mtcg.controller;
 
 import at.technikum.apps.mtcg.entity.User;
+import at.technikum.apps.mtcg.entity.UserData;
+import at.technikum.apps.mtcg.repository.UserRepository;
 import at.technikum.apps.mtcg.service.UserService;
-import at.technikum.apps.task.entity.Task;
-import at.technikum.apps.task.service.TaskService;
 import at.technikum.server.http.HttpContentType;
 import at.technikum.server.http.HttpStatus;
 import at.technikum.server.http.Request;
@@ -11,78 +11,86 @@ import at.technikum.server.http.Response;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+
 import java.util.List;
+import java.util.Optional;
 
 
 public class UserController extends Controller {
 
-/*
-    @Override
-    public Response handle(Request request) {
-        Response response = new Response();
-        response.setStatus(HttpStatus.OK);
-        response.setContentType(HttpContentType.TEXT_PLAIN);
-        response.setBody("user controller");
-
-        return response;
-    }
-*/
     private final UserService userService;
 
     public UserController() {
-        this.userService = new UserService();
+        this.userService = new UserService(new UserRepository());
     }
 
     @Override
     public boolean supports(String route) {
         return route.startsWith("/users");
     }
-    //Diese Methode prüft, ob der übergebene Routenpfad (route) gleich "/users" ist.
-    //Wenn die Methode true zurückgibt, bedeutet dies, dass diese Controller-Klasse für die
-    // Verarbeitung des angegebenen Routenpfads zuständig ist.
+
 
     @Override
     public Response handle(Request request) {
 
 
-        // get username e.g. from /username/{username}
-
-
-        String[] routeParts = request.getRoute().split("/");
-        String username = routeParts[2];
-
+        //Register User
         if (request.getRoute().equals("/users")) {
             switch (request.getMethod()) {
-                case "GET": return readAll(request);
                 case "POST": return create(request);
-                case "DELETE":return deleteUsername(username,request);
+                case "GET": return readAll(request);
+                default:
+                    return status(HttpStatus.METHOD_NOT_ALLOWED);
             }
 
-            // THOUGHT: better 405
-            return status(HttpStatus.BAD_REQUEST);
         }
 
 
-        // THOUGHT: better 405
-        return status(HttpStatus.BAD_REQUEST);
+        //Registered User
+        //get username e.g. from /username/{username}
+        String[] routeParts = request.getRoute().split("/");
+
+        if(routeParts.length == 3 && routeParts[1].equals("users")){
+
+            String username = routeParts[2];
+
+        switch (request.getMethod()) {
+            case "GET":
+                return getUserData(username, request);  //Userdata anfragen, findUserData()
+            case "PUT":
+                return update(username, request); //
+            default:
+                return status(HttpStatus.METHOD_NOT_ALLOWED);
+
+            }
+        }
+        return status(HttpStatus.METHOD_NOT_ALLOWED);
     }
+
 
 
     public Response create(Request request) {
 
         ObjectMapper objectMapper = new ObjectMapper();
+
         User user = null;
+
         try {
             user = objectMapper.readValue(request.getBody(), User.class);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
 
-        // user = toObject(request.getBody(), User.class);
+        try {
+            user = userService.save(user);
+        } catch(RuntimeException e) {
+            return status(HttpStatus.ALREADY_EXISTING);
+        }
 
-        user = userService.save(user);
+
 
         String userJson = null;
+
         try {
             userJson = objectMapper.writeValueAsString(user);
         } catch (JsonProcessingException e) {
@@ -90,14 +98,12 @@ public class UserController extends Controller {
         }
 
         Response response = new Response();
-        // THOUGHT: better status 201 Created
         response.setStatus(HttpStatus.OK);
         response.setContentType(HttpContentType.APPLICATION_JSON);
-        //response.setBody(userJson);
+        response.setBody(userJson);
 
         return response;
 
-        // return json(user);
     }
 
     public Response readAll(Request request) {
@@ -112,10 +118,8 @@ public class UserController extends Controller {
         }
 
 
-        // Object to JSON coming soon
 
         Response response = new Response();
-        // THOUGHT: better status 201 Created
         response.setStatus(HttpStatus.OK);
         response.setContentType(HttpContentType.APPLICATION_JSON);
         response.setBody(usersJson);
@@ -123,16 +127,102 @@ public class UserController extends Controller {
         return response;
     }
 
-    public Response read(int id, Request request) {
-        return null;
+
+
+    //GET
+    public Response getUserData(String username, Request request) {
+
+
+        Optional<UserData> userData = userService.getUserData(username);
+
+        if (userData.isPresent()) {
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                String userJson = objectMapper.writeValueAsString(userData.get());
+
+                Response response = new Response();
+                response.setStatus(HttpStatus.OK);
+                response.setContentType(HttpContentType.APPLICATION_JSON);
+                response.setBody(userJson);
+
+                return response;
+            } catch (JsonProcessingException e) {
+                return status(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return status(HttpStatus.NOT_FOUND);
+        }
+
     }
 
-    public Response update(int id, Request request) {
-        return null;
+
+
+
+    public Response update(String username, Request request) {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        UserData userData = null;
+
+        try {
+            userData = objectMapper.readValue(request.getBody(), UserData.class);
+        } catch (JsonProcessingException e) {
+            return status(HttpStatus.BAD_REQUEST);
+        }
+
+
+        try {
+           userService.updateUser(username, userData);
+        } catch(RuntimeException e) {
+            return status(HttpStatus.OK);
+        }
+
+        String userJson = null;
+
+        try {
+            userJson = objectMapper.writeValueAsString(userData);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        Response response = new Response();
+        response.setStatus(HttpStatus.OK);
+        response.setContentType(HttpContentType.APPLICATION_JSON);
+        response.setBody(userJson);
+
+        return response;
+
+
+
+
+    }
+}
+
+
+
+
+/*
+public Response findAll(Request request) {
+
+    List<User> users = userService.findUserData();
+
+    ObjectMapper objectMapper = new ObjectMapper();
+    String usersJson = null;
+    try {
+        usersJson = objectMapper.writeValueAsString(users);
+    } catch (JsonProcessingException e) {
+        throw new RuntimeException(e);
     }
 
-    public Response deleteUsername(String username, Request request) {
-        return null;
-    }
+
+    // Object to JSON coming soon
+
+    Response response = new Response();
+    response.setStatus(HttpStatus.OK);
+    response.setContentType(HttpContentType.APPLICATION_JSON);
+    response.setBody(usersJson);
+
+    return response;
 
 }
+*/

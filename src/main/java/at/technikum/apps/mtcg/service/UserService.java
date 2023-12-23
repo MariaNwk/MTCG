@@ -1,42 +1,41 @@
 package at.technikum.apps.mtcg.service;
 
 import at.technikum.apps.mtcg.entity.User;
-import at.technikum.apps.mtcg.repository.DatabaseUserRepository;
+import at.technikum.apps.mtcg.entity.UserData;
 import at.technikum.apps.mtcg.repository.UserRepository;
-import at.technikum.apps.mtcg.repository.MemoryUserRepository;
-
+import at.technikum.server.http.HttpStatus;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 public class UserService {
 
 
         private final UserRepository userRepository;
 
-        public UserService() {
-            this.userRepository = new DatabaseUserRepository();
+        public UserService(UserRepository userRepository) {
+            this.userRepository = new UserRepository();
         }
 
-        public List<User> findAll() {
+
+
+        public User save(User user) {
+                return userRepository.save(user);
+        }
+
+        public List<User> findAll(){
             return userRepository.findAll();
         }
 
-        public Optional<User> find(int id) {
-            return Optional.empty();
-        }
 
-        public User save(User user) {
-            user.setId(UUID.randomUUID().toString());
-            return userRepository.save(user);
-        }
+    public Optional<UserData> getUserData(String username){
+            return Optional.ofNullable(userRepository.findUserData(username));
+    }
 
-        public User update(int updateId, User updatedUser) {
-            return null;
-        }
 
-        public User delete(User user) {
-            return null;
-        }
+    public UserData updateUser(String username, UserData userdata){
+         return userRepository.updateUser(username, userdata);
+    }
+
 
 }

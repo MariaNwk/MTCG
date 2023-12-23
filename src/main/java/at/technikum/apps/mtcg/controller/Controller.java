@@ -12,6 +12,7 @@ public abstract class Controller {
     public abstract Response handle(Request request);
 
     protected Response status(HttpStatus httpStatus) {
+
         Response response = new Response();
         response.setStatus(httpStatus);
         response.setContentType(HttpContentType.APPLICATION_JSON);
@@ -21,4 +22,21 @@ public abstract class Controller {
     }
 
     // THOUGHT: more functionality e.g. ok(), json(), etc
+
+    protected Response jsonStatus(HttpStatus httpStatus, String body)
+    {
+        Response response = new Response();
+        response.setStatus(httpStatus);
+        response.setContentType(HttpContentType.APPLICATION_JSON);
+        if (httpStatus.getCode() >= 400)
+        {
+            response.setBody("{ \"error\": \""+ body + "\"}");
+        }
+        else
+        {
+            response.setBody(body);
+        }
+
+        return response;
+    }
 }

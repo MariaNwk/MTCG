@@ -13,6 +13,13 @@ public class CardController extends Controller{
 
     @Override
     public Response handle(Request request) {
+        return null;
+    }
+
+
+    /*
+    @Override
+    public Response handle(Request request) {
         Response response = new Response();
         response.setStatus(HttpStatus.OK);
         response.setContentType(HttpContentType.TEXT_PLAIN);
@@ -20,4 +27,7 @@ public class CardController extends Controller{
 
         return response;
     }
+
+
+     */
 }

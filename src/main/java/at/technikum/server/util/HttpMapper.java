@@ -55,6 +55,7 @@ public class HttpMapper {
             case "POST" -> HttpMethod.POST;
             case "PUT" -> HttpMethod.PUT;
             case "DELETE" -> HttpMethod.DELETE;
+            //case "OPTIONS" -> HttpMethod.OPTIONS;
             default -> throw new RuntimeException("No HTTP Method");
         };
     }

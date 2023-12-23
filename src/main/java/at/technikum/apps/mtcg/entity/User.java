@@ -1,39 +1,39 @@
 package at.technikum.apps.mtcg.entity;
 
-public class User {
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 
-    private String id;
-    private String username;
+public class User  {
 
-    private String password;
+    @JsonProperty("Username")
+    public String username;
 
+    @JsonProperty("Password")
+    public String password;
 
+    public User()
+    {
 
-    public User() {
     }
 
-    public User(String id, String username, String password) {
-        this.id = id;
-        this.username = username;
-        this.password = password;
+    public User(String Username, String Password) {
+        this.username = Username;
+        this.password = Password;
     }
 
-    public String getId(){return id;}
 
-    public void setId(String username) {
-        this.id = id;
+
+    public String getUsername(){
+        return username;
     }
 
-    public String getUsername(){return username;}
-
-    public void setName(String username) {
-        this.username = username;
+    public void setUsername(String Username) {
+        this.username = Username;
     }
 
     public String getPassword(){return password;}
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+
 }
+
+
