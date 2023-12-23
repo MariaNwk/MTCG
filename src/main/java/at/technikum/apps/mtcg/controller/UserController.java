@@ -64,7 +64,7 @@ public class UserController extends Controller {
 
             }
         }
-        return status(HttpStatus.METHOD_NOT_ALLOWED);
+        return status(HttpStatus.BAD_REQUEST);
     }
 
 
@@ -98,7 +98,7 @@ public class UserController extends Controller {
         }
 
         Response response = new Response();
-        response.setStatus(HttpStatus.OK);
+        response.setStatus(HttpStatus.CREATED);
         response.setContentType(HttpContentType.APPLICATION_JSON);
         response.setBody(userJson);
 
@@ -141,7 +141,7 @@ public class UserController extends Controller {
                 String userJson = objectMapper.writeValueAsString(userData.get());
 
                 Response response = new Response();
-                response.setStatus(HttpStatus.OK);
+                response.setStatus(HttpStatus.USERDATA_RETRIEVED);
                 response.setContentType(HttpContentType.APPLICATION_JSON);
                 response.setBody(userJson);
 
@@ -150,7 +150,7 @@ public class UserController extends Controller {
                 return status(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } else {
-            return status(HttpStatus.NOT_FOUND);
+            return status(HttpStatus.USER_NOT_FOUND);
         }
 
     }
@@ -174,7 +174,7 @@ public class UserController extends Controller {
         try {
            userService.updateUser(username, userData);
         } catch(RuntimeException e) {
-            return status(HttpStatus.OK);
+            return status(HttpStatus.UPDATE_SUCCESSFUL);
         }
 
         String userJson = null;
@@ -186,7 +186,7 @@ public class UserController extends Controller {
         }
 
         Response response = new Response();
-        response.setStatus(HttpStatus.OK);
+        response.setStatus(HttpStatus.UPDATE_SUCCESSFUL);
         response.setContentType(HttpContentType.APPLICATION_JSON);
         response.setBody(userJson);
 
@@ -201,28 +201,3 @@ public class UserController extends Controller {
 
 
 
-/*
-public Response findAll(Request request) {
-
-    List<User> users = userService.findUserData();
-
-    ObjectMapper objectMapper = new ObjectMapper();
-    String usersJson = null;
-    try {
-        usersJson = objectMapper.writeValueAsString(users);
-    } catch (JsonProcessingException e) {
-        throw new RuntimeException(e);
-    }
-
-
-    // Object to JSON coming soon
-
-    Response response = new Response();
-    response.setStatus(HttpStatus.OK);
-    response.setContentType(HttpContentType.APPLICATION_JSON);
-    response.setBody(usersJson);
-
-    return response;
-
-}
-*/

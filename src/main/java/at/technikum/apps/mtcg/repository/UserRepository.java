@@ -1,5 +1,6 @@
 package at.technikum.apps.mtcg.repository;
 
+import at.technikum.apps.mtcg.entity.Token;
 import at.technikum.apps.mtcg.entity.UserData;
 import at.technikum.apps.mtcg.entity.User;
 import at.technikum.apps.task.data.Database;
@@ -18,16 +19,17 @@ public class UserRepository {
     private final String SAVE_SQL = "INSERT INTO user_session(Username, Password) VALUES(?, ?)";
     private final String GET_USER_BY_USERNAME = "SELECT * FROM user_session WHERE username = ?";
     private final String GET_USERDATA_BY_USERNAME = "SELECT * FROM user_data WHERE username = ?";
+    private final String GET_TOKEN = "SELECT token FROM user_session WHERE username = ?";
+    private final String SET_TOKEN = "UPDATE user_session SET token = ? WHERE username = ?";
     private final String UPDATE_USERDATA_BY_USERNAME = "INSERT INTO user_data (username, name, bio, image) VALUES (?, ?, ?, ?) " +
             "ON CONFLICT (username) DO UPDATE SET name = EXCLUDED.name, bio = EXCLUDED.bio, image = EXCLUDED.image";
-
     private final Database database = new Database();
 
 
 
 
 
-    //POST / Register  user
+    //POST Register  user
     public User save(User user) {
 
         try (
@@ -49,6 +51,8 @@ public class UserRepository {
 
     }
 
+
+    // Overview of Data, not required!!!
     public List<User> findAll()
     {
         List<User> users = new ArrayList<>();
@@ -75,12 +79,7 @@ public class UserRepository {
 
 
 
-
-
-
-
-    //GET userdata
-
+    //GET userdata: name, image, bio
     public UserData findUserData(String username){
         try (
                 Connection con = Database.getConnection();
@@ -104,7 +103,7 @@ public class UserRepository {
         }
     }
 
-    //PUT
+    //PUT update name, bio, image
     public UserData updateUser(String username, UserData userdata) {
 
         try (
@@ -126,6 +125,83 @@ public class UserRepository {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    //------------------------------------------------------------
+    //------------------------------------------------------------
+    //LOGIN
+
+    // Find user by username
+    public User findUser(String username){
+
+        try (
+                Connection con = Database.getConnection();
+                PreparedStatement pstmt = con.prepareStatement(GET_USER_BY_USERNAME);
+
+        ) {
+            pstmt.setString(1, username);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return new User(
+                        rs.getString("username"),
+                        rs.getString("password")
+                );
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void login(String username) throws SQLException {
+
+
+            Connection con = Database.getConnection();
+            PreparedStatement pstmt = con.prepareStatement(SET_TOKEN);
+
+            pstmt.setString(1, username + "-token");
+            pstmt.setString(2, username);
+            pstmt.execute();
+
+
+
+
+    }
+
+    public Token getTokenFromUser(String username){
+        try (
+                Connection con = Database.getConnection();
+                PreparedStatement pstmt = con.prepareStatement(GET_TOKEN)
+        ) {
+            pstmt.setString(1, username);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return new Token(
+                        rs.getString("token")
+                );
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public Token authenticate(User user) throws SQLException {
+
+        User userDB = findUser(user.getUsername());
+
+        if(userDB == null || !userDB.getPassword().equals(user.getPassword())){
+            throw new SQLException("Invalid username/password provided");
+        }
+
+            login(userDB.getUsername());
+            return getTokenFromUser(userDB.getUsername());
+
     }
 
 }
