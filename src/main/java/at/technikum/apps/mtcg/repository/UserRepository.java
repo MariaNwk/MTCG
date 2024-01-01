@@ -40,10 +40,9 @@ public class UserRepository {
 
             pstmt.setString(1, user.getUsername());
             pstmt.setString(2, user.getPassword());
-
             pstmt.execute();
-        } catch (SQLException e) {
 
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
@@ -161,11 +160,9 @@ public class UserRepository {
             Connection con = Database.getConnection();
             PreparedStatement pstmt = con.prepareStatement(SET_TOKEN);
 
-            pstmt.setString(1, username + "-token");
+            pstmt.setString(1, username + "-mtcgToken");
             pstmt.setString(2, username);
             pstmt.execute();
-
-
 
 
     }

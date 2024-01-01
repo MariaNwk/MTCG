@@ -4,6 +4,9 @@ import at.technikum.server.http.HttpMethod;
 import at.technikum.server.http.Request;
 import at.technikum.server.http.Response;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,12 +14,15 @@ import java.util.regex.Pattern;
 // THOUGHT: Dont use static methods (non-static is better for testing)
 public class HttpMapper {
 
-    public static Request toRequestObject(String httpRequest) {
+    public static Request toRequestObject(String httpRequest) throws IOException {
         Request request = new Request();
 
         request.setMethod(getHttpMethod(httpRequest));
         request.setRoute(getRoute(httpRequest));
         request.setHost(getHttpHeader("Host", httpRequest));
+        String token = getToken(httpRequest);
+        request.setToken(token);
+
 
         // THOUGHT: don't do the content parsing in this method
         String contentLengthHeader = getHttpHeader("Content-Length", httpRequest);
@@ -36,7 +42,29 @@ public class HttpMapper {
         return request;
     }
 
+
+    private static String getToken(String httpRequest) throws IOException {
+        // Erstelle einen BufferedReader für den HttpRequest-String
+        try (BufferedReader br = new BufferedReader(new StringReader(httpRequest))) {
+            String line;
+            while ((line = br.readLine()) != null && !line.isEmpty()) {
+                if (line.startsWith("Authorization: Bearer ")) {
+                    return line.substring("Authorization: Bearer ".length());
+                }
+            }
+        } catch (IOException e) {
+            // Hier entsprechende Fehlerbehandlung einfügen, falls benötigt
+            e.printStackTrace();
+        }
+        return "INVALID";
+    }
+
     public static String toResponseString(Response response) {
+
+
+        if (response == null) {
+            return "HTTP/1.1 500 Internal Server Error\r\n\r\n";
+        }
 
         return "HTTP/1.1 " + response.getStatusCode() + " " + response.getStatusMessage() + "\r\n" +
                 "Content-Type: " + response.getContentType() + "\r\n" +
@@ -74,4 +102,6 @@ public class HttpMapper {
 
         return matcher.group(1);
     }
+
+
 }

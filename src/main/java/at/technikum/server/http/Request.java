@@ -1,5 +1,8 @@
 package at.technikum.server.http;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+
 public class Request {
 
     // GET, POST, PUT, DELETE
@@ -18,6 +21,9 @@ public class Request {
 
     // none, "{ "name": "foo" }"
     private String body;
+
+    private String token;
+
 
     public String getMethod() {
         return method;
@@ -65,5 +71,13 @@ public class Request {
 
     public void setBody(String body) {
         this.body = body;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }
