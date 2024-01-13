@@ -13,12 +13,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 
 public class UserController extends Controller {
 
     private final UserService userService;
+
 
     public UserController() {
         this.userService = new UserService(new UserRepository());
@@ -43,28 +45,31 @@ public class UserController extends Controller {
                     return status(HttpStatus.METHOD_NOT_ALLOWED);
             }
 
-        }
+        } else {
 
+            //Registered User
+            //get username e.g. from /username/{username}
+            String[] routeParts = request.getRoute().split("/");
 
-        //Registered User
-        //get username e.g. from /username/{username}
-        String[] routeParts = request.getRoute().split("/");
+            if(routeParts.length == 3 && routeParts[1].equals("users")){
 
-        if(routeParts.length == 3 && routeParts[1].equals("users")){
+                String username = routeParts[2];
 
-            String username = routeParts[2];
+                switch (request.getMethod()) {
+                    case "GET":
+                        return getUserData(username, request);  //Userdata anfragen, findUserData()
+                    case "PUT":
+                        return update(username, request); //
+                    default:
+                        return status(HttpStatus.METHOD_NOT_ALLOWED);
 
-        switch (request.getMethod()) {
-            case "GET":
-                return getUserData(username, request);  //Userdata anfragen, findUserData()
-            case "PUT":
-                return update(username, request); //
-            default:
-                return status(HttpStatus.METHOD_NOT_ALLOWED);
-
+                }
             }
+            return status(HttpStatus.BAD_REQUEST);
+
         }
-        return status(HttpStatus.BAD_REQUEST);
+
+
     }
 
 
@@ -86,8 +91,6 @@ public class UserController extends Controller {
         } catch(RuntimeException e) {
             return status(HttpStatus.ALREADY_EXISTING);
         }
-
-
 
         String userJson = null;
 
@@ -111,13 +114,12 @@ public class UserController extends Controller {
 
         ObjectMapper objectMapper = new ObjectMapper();
         String usersJson = null;
+
         try {
             usersJson = objectMapper.writeValueAsString(users);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-
-
 
         Response response = new Response();
         response.setStatus(HttpStatus.OK);
@@ -129,40 +131,80 @@ public class UserController extends Controller {
 
 
 
-    //GET
-    public Response getUserData(String username, Request request) {
+    //----------------------------------------------------------------
+    //USERDATA
 
+
+
+    public Response getUserData(String usernamePath, Request request) {
+
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+
+        if (request.getTokenNotAdmin().equals("INVALID"))
+        {
+            return status(HttpStatus.UNAUTHORIZED);
+        }
+
+        String username = request.getUsername();
+
+        if
+        (!Objects.equals(username, usernamePath)){
+            return status(HttpStatus.UNAUTHORIZED);
+        }
 
         Optional<UserData> userData = userService.getUserData(username);
 
-        if (userData.isPresent()) {
-            try {
-                ObjectMapper objectMapper = new ObjectMapper();
-                String userJson = objectMapper.writeValueAsString(userData.get());
 
-                Response response = new Response();
-                response.setStatus(HttpStatus.USERDATA_RETRIEVED);
-                response.setContentType(HttpContentType.APPLICATION_JSON);
-                response.setBody(userJson);
-
-                return response;
-            } catch (JsonProcessingException e) {
-                return status(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        } else {
-            return status(HttpStatus.USER_NOT_FOUND);
+        if(userData.isEmpty()){
+            Response response = new Response();
+            response.setStatus(HttpStatus.OK);
+            response.setContentType(HttpContentType.APPLICATION_JSON);
+            response.setBody("The request was fine, but the user doesn't have any user data");
+            return response;
         }
+
+
+
+        String userJson = null;
+
+        try {
+            userJson = objectMapper.writeValueAsString(userData.get());
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+
+
+        Response response = new Response();
+        response.setStatus(HttpStatus.UPDATE_SUCCESSFUL);
+        response.setContentType(HttpContentType.APPLICATION_JSON);
+        response.setBody(userJson);
+
+        return response;
+
 
     }
 
 
 
 
-    public Response update(String username, Request request) {
+    public Response update(String usernamePath, Request request) {
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        UserData userData = null;
+        if (request.getTokenNotAdmin().equals("INVALID"))
+        {
+            return status(HttpStatus.UNAUTHORIZED);
+        }
+        String username = request.getUsername();
+
+        if(!Objects.equals(username, usernamePath)){
+            return status(HttpStatus.UNAUTHORIZED);
+        }
+
+        UserData userData;
 
         try {
             userData = objectMapper.readValue(request.getBody(), UserData.class);
@@ -174,7 +216,7 @@ public class UserController extends Controller {
         try {
            userService.updateUser(username, userData);
         } catch(RuntimeException e) {
-            return status(HttpStatus.UPDATE_SUCCESSFUL);
+            return status(HttpStatus.BAD_REQUEST);
         }
 
         String userJson = null;

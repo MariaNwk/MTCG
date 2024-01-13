@@ -1,11 +1,6 @@
 package at.technikum.apps.mtcg.controller;
 
-import at.technikum.apps.mtcg.entity.Package;
-import at.technikum.apps.mtcg.entity.User;
 import at.technikum.apps.mtcg.entity.cards.Card;
-import at.technikum.apps.mtcg.repository.CardRepository;
-import at.technikum.apps.mtcg.repository.PackageRepository;
-import at.technikum.apps.mtcg.repository.UserRepository;
 import at.technikum.apps.mtcg.service.PackageService;
 import at.technikum.server.http.HttpContentType;
 import at.technikum.server.http.HttpStatus;
@@ -71,15 +66,15 @@ public class PackageController extends Controller{
             throw new RuntimeException(e);
         }
 
-        System.out.println("Before packageService.create(cards)");
+
 
         try {
                 packageService.create(cards);
             } catch(RuntimeException e) {
-                return status(HttpStatus.ALREADY_EXISTING);
+                return status(HttpStatus.BAD_REQUEST);
             }
 
-        System.out.println("After packageService.create(cards)");
+
 
 
         String packageJson = null;

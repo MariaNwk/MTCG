@@ -24,6 +24,10 @@ public class Request {
 
     private String token;
 
+    private String tokenNotAdmin;
+
+    private String username;
+
 
     public String getMethod() {
         return method;
@@ -79,5 +83,21 @@ public class Request {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getTokenNotAdmin() {
+        return tokenNotAdmin;
+    }
+
+    public void setTokenNotAdmin(String tokenNotAdmin) {
+        this.tokenNotAdmin = tokenNotAdmin;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

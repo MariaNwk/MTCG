@@ -20,8 +20,15 @@ public class HttpMapper {
         request.setMethod(getHttpMethod(httpRequest));
         request.setRoute(getRoute(httpRequest));
         request.setHost(getHttpHeader("Host", httpRequest));
+
         String token = getToken(httpRequest);
         request.setToken(token);
+
+        String tokenNotAdmin = getTokenNotAdmin(httpRequest);
+        request.setTokenNotAdmin(tokenNotAdmin);
+
+        String username = getUsername(httpRequest);
+        request.setUsername(username);
 
 
         // THOUGHT: don't do the content parsing in this method
@@ -44,7 +51,7 @@ public class HttpMapper {
 
 
     private static String getToken(String httpRequest) throws IOException {
-        // Erstelle einen BufferedReader für den HttpRequest-String
+
         try (BufferedReader br = new BufferedReader(new StringReader(httpRequest))) {
             String line;
             while ((line = br.readLine()) != null && !line.isEmpty()) {
@@ -54,6 +61,42 @@ public class HttpMapper {
             }
         } catch (IOException e) {
             // Hier entsprechende Fehlerbehandlung einfügen, falls benötigt
+            e.printStackTrace();
+        }
+        return "INVALID";
+    }
+    private static String getTokenNotAdmin(String httpRequest) throws IOException {
+        try (BufferedReader br = new BufferedReader(new StringReader(httpRequest))) {
+            String line;
+            while ((line = br.readLine()) != null && !line.isEmpty()) {
+                if (line.startsWith("Authorization: Bearer ") && !line.contains("admin")) {
+                    return line.substring("Authorization: Bearer ".length());
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "INVALID";
+    }
+
+
+    private static String getUsername(String httpRequest) throws IOException {
+
+        try (BufferedReader br = new BufferedReader(new StringReader(httpRequest))) {
+            String line;
+            while ((line = br.readLine()) != null && !line.isEmpty()) {
+                if (line.startsWith("Authorization: Bearer ")) {
+                    String token = line.substring("Authorization: Bearer ".length());
+
+                    int dashIndex = token.indexOf('-');
+                    if (dashIndex != -1) {
+                        return token.substring(0, dashIndex);
+                    } else {
+                        return token;
+                    }
+                }
+            }
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return "INVALID";

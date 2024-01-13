@@ -4,7 +4,11 @@ import at.technikum.apps.mtcg.entity.User;
 import at.technikum.apps.mtcg.entity.UserData;
 import at.technikum.apps.mtcg.repository.UserRepository;
 import at.technikum.server.http.HttpStatus;
+import at.technikum.server.http.Request;
+import at.technikum.server.http.Response;
+
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -29,12 +33,12 @@ public class UserService {
 
 
     public Optional<UserData> getUserData(String username){
-            return Optional.ofNullable(userRepository.findUserData(username));
+            return userRepository.getUserData(username);
     }
 
 
-    public UserData updateUser(String username, UserData userdata){
-         return userRepository.updateUser(username, userdata);
+    public void updateUser(String username, UserData userdata){
+        userRepository.updateUser(username, userdata);
     }
 
 

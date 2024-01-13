@@ -4,31 +4,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class UserData {
 
 
-
-    @JsonProperty("Username")
-    private String username;
-
     @JsonProperty("Name")
     private String name;
     @JsonProperty("Bio")
     private String bio;
-
     @JsonProperty("Image")
     private String image;
+    public UserData(){
+    }
 
-    public UserData(String Username, String Name, String Bio, String Image) {
-        this.username = Username;
+    public UserData(String Name, String Bio, String Image) {
         this.name = Name;
         this.bio = Bio;
         this.image = Image;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String Username) {
-        this.username = Username;
     }
 
     public String getName() {

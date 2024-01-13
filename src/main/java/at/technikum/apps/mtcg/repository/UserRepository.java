@@ -17,12 +17,20 @@ public class UserRepository {
 
     private final String FIND_ALL_SQL = "SELECT * FROM user_session";
     private final String SAVE_SQL = "INSERT INTO user_session(Username, Password) VALUES(?, ?)";
+    private final String CREATE_EMPTY_USER_STATS = "INSERT INTO stats (name) VALUES (?)";
     private final String GET_USER_BY_USERNAME = "SELECT * FROM user_session WHERE username = ?";
-    private final String GET_USERDATA_BY_USERNAME = "SELECT * FROM user_data WHERE username = ?";
     private final String GET_TOKEN = "SELECT token FROM user_session WHERE username = ?";
     private final String SET_TOKEN = "UPDATE user_session SET token = ? WHERE username = ?";
+    private final String GET_COINS = "SELECT coins FROM user_session WHERE username = ?";
+
+
+    //USERDATA
+    private final String GET_USERDATA_BY_USERNAME = "SELECT * FROM user_data WHERE username = ?";
     private final String UPDATE_USERDATA_BY_USERNAME = "INSERT INTO user_data (username, name, bio, image) VALUES (?, ?, ?, ?) " +
             "ON CONFLICT (username) DO UPDATE SET name = EXCLUDED.name, bio = EXCLUDED.bio, image = EXCLUDED.image";
+
+
+
     private final Database database = new Database();
 
 
@@ -41,6 +49,15 @@ public class UserRepository {
             pstmt.setString(1, user.getUsername());
             pstmt.setString(2, user.getPassword());
             pstmt.execute();
+
+
+            //Stats
+
+            PreparedStatement pstmt2 = con.prepareStatement(CREATE_EMPTY_USER_STATS);
+
+            pstmt2.setString(1, user.getUsername());
+            pstmt2.execute();
+
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -79,27 +96,36 @@ public class UserRepository {
 
 
     //GET userdata: name, image, bio
-    public UserData findUserData(String username){
-        try (
-                Connection con = Database.getConnection();
-                PreparedStatement pstmt = con.prepareStatement(GET_USERDATA_BY_USERNAME)
-        ) {
-            pstmt.setString(1, username);
-            ResultSet rs = pstmt.executeQuery();
+    public Optional<UserData> getUserData(String username){
 
-            if (rs.next()) {
-                return new UserData(
-                        rs.getString("username"),
+        Optional<UserData> userData;
+        try
+        {
+            Connection con = Database.getConnection();
+            PreparedStatement pstmt = con.prepareStatement(GET_USERDATA_BY_USERNAME);
+            pstmt.setString(1, username);
+
+            ResultSet rs = pstmt.executeQuery();
+            con.close();
+            if (rs.next())
+            {
+                userData = Optional.of(new UserData(
                         rs.getString("name"),
                         rs.getString("bio"),
                         rs.getString("image")
-                );
-            } else {
-                return null;
+                ));
+
+                return userData;
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            return Optional.empty();
         }
+        catch (SQLException e)
+        {
+            return Optional.empty();
+        }
+
+
+
     }
 
     //PUT update name, bio, image
@@ -109,21 +135,18 @@ public class UserRepository {
                 Connection con = database.getConnection();
                 PreparedStatement pstmt = con.prepareStatement(UPDATE_USERDATA_BY_USERNAME)
         ) {
-            pstmt.setString(1, userdata.getUsername());
+
+            pstmt.setString(1, username);
             pstmt.setString(2, userdata.getName());
             pstmt.setString(3, userdata.getBio());
             pstmt.setString(4, userdata.getImage());
 
-            int rowsUpdated = pstmt.executeUpdate();
+            pstmt.execute();
 
-            if (rowsUpdated > 0) {
-                return userdata;
-            } else {
-                throw new RuntimeException("Update failed. User not found.");
-            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        return userdata;
     }
 
     //------------------------------------------------------------
@@ -201,64 +224,24 @@ public class UserRepository {
 
     }
 
-}
+    //PACKAGE
 
-
-
-
-
-
-
-
-/*
-
-    public List<User> findAll() {
-
-        List<User> users = new ArrayList<>();
-
+    public int getCoins(String username) {
         try (
-                Connection con = database.getConnection();
-                PreparedStatement pstmt = con.prepareStatement(FIND_ALL_SQL);
-                ResultSet rs = pstmt.executeQuery()
-        ) {
-            while (rs.next()) {
-                User user = new User(
-
-                        rs.getString("id"),
-                        rs.getString("username"),
-                        rs.getString("password")
-                );
-                users.add(user);
-            }
-
-            return users;
-        } catch (SQLException e) {
-            return users;
-        }
-    }
-
-
-    //GET user by username
-    public Optional<User> findUserByUsername(String username){
-        try (
-                Connection con = database.getConnection();
-                PreparedStatement pstmt = con.prepareStatement(GET_USER_BY_USERNAME)
+                Connection con = Database.getConnection();
+                PreparedStatement pstmt = con.prepareStatement(GET_COINS)
         ) {
             pstmt.setString(1, username);
             ResultSet rs = pstmt.executeQuery();
+            rs.next();
+            return rs.getInt("coins");
 
-            if (rs.next()) {
-                return Optional.of(new User(
-                        rs.getString("id"),
-                        rs.getString("username"),
-                        rs.getString("password")
-                ));
-            } else {
-                return Optional.empty();
-            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
     }
 
-    */
+
+}
+
