@@ -100,4 +100,9 @@ public class Request {
     public void setUsername(String username) {
         this.username = username;
     }
+
+    public boolean isAdmin()
+    {
+        return getToken().equals("admin-mtcgToken");
+    }
 }

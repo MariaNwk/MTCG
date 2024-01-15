@@ -19,7 +19,7 @@ public class SessionController extends Controller {
 
     private final SessionService sessionService;
 
-    public SessionController(){ this.sessionService = new SessionService(new UserRepository());}
+    public SessionController(){ this.sessionService = new SessionService();}
     @Override
     public boolean supports(String route) {
         return route.equals("/sessions");
@@ -54,6 +54,7 @@ public class SessionController extends Controller {
         }
 
         Token token = null;
+
 
         try {
             token = sessionService.login(user);

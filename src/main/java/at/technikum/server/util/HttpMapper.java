@@ -50,27 +50,49 @@ public class HttpMapper {
     }
 
 
+
+
+
+
+
+
     private static String getToken(String httpRequest) throws IOException {
 
+        String token = "empty";
         try (BufferedReader br = new BufferedReader(new StringReader(httpRequest))) {
             String line;
+
             while ((line = br.readLine()) != null && !line.isEmpty()) {
                 if (line.startsWith("Authorization: Bearer ")) {
-                    return line.substring("Authorization: Bearer ".length());
+                     token = line.substring("Authorization: Bearer ".length());
+                    if(!token.contains("-mtcgToken")){
+                        return "INVALID";
+                    }
+                     return token;
                 }
             }
         } catch (IOException e) {
             // Hier entsprechende Fehlerbehandlung einfügen, falls benötigt
             e.printStackTrace();
         }
+
         return "INVALID";
+
     }
-    private static String getTokenNotAdmin(String httpRequest) throws IOException {
+
+
+    public static String getTokenNotAdmin(String httpRequest) throws IOException {
+        String token = "empty";
         try (BufferedReader br = new BufferedReader(new StringReader(httpRequest))) {
             String line;
             while ((line = br.readLine()) != null && !line.isEmpty()) {
                 if (line.startsWith("Authorization: Bearer ") && !line.contains("admin")) {
-                    return line.substring("Authorization: Bearer ".length());
+                    token = line.substring("Authorization: Bearer ".length());
+
+                    if(!token.contains("-mtcgToken")){
+                        return "INVALID";
+                    }
+                    return token;
                 }
             }
         } catch (IOException e) {
@@ -80,7 +102,7 @@ public class HttpMapper {
     }
 
 
-    private static String getUsername(String httpRequest) throws IOException {
+    public static String getUsername(String httpRequest) throws IOException {
 
         try (BufferedReader br = new BufferedReader(new StringReader(httpRequest))) {
             String line;

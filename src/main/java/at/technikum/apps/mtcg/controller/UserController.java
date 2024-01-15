@@ -40,7 +40,6 @@ public class UserController extends Controller {
         if (request.getRoute().equals("/users")) {
             switch (request.getMethod()) {
                 case "POST": return create(request);
-                case "GET": return readAll(request);
                 default:
                     return status(HttpStatus.METHOD_NOT_ALLOWED);
             }
@@ -109,32 +108,10 @@ public class UserController extends Controller {
 
     }
 
-    public Response readAll(Request request) {
-        List<User> users = userService.findAll();
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        String usersJson = null;
-
-        try {
-            usersJson = objectMapper.writeValueAsString(users);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-
-        Response response = new Response();
-        response.setStatus(HttpStatus.OK);
-        response.setContentType(HttpContentType.APPLICATION_JSON);
-        response.setBody(usersJson);
-
-        return response;
-    }
-
 
 
     //----------------------------------------------------------------
     //USERDATA
-
-
 
     public Response getUserData(String usernamePath, Request request) {
 
@@ -178,7 +155,7 @@ public class UserController extends Controller {
 
 
         Response response = new Response();
-        response.setStatus(HttpStatus.UPDATE_SUCCESSFUL);
+        response.setStatus(HttpStatus.OK);
         response.setContentType(HttpContentType.APPLICATION_JSON);
         response.setBody(userJson);
 
@@ -233,9 +210,6 @@ public class UserController extends Controller {
         response.setBody(userJson);
 
         return response;
-
-
-
 
     }
 }

@@ -43,6 +43,8 @@ public class CardController extends Controller{
 
         ObjectMapper objectMapper = new ObjectMapper();
 
+        String token = request.getTokenNotAdmin();
+
         if (request.getTokenNotAdmin().equals("INVALID"))
         {
             return status(HttpStatus.UNAUTHORIZED);

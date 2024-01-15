@@ -1,7 +1,7 @@
 package at.technikum.apps.mtcg.repository;
 
 import at.technikum.apps.mtcg.entity.UserStat;
-import at.technikum.apps.task.data.Database;
+import at.technikum.apps.database.data.Database;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,16 +15,6 @@ public class StatRepository {
 
     private final String GET_USER_STATS = "SELECT * FROM stats WHERE name = ?";
 
-    private final String GIVE_THREE_ELO = """
-            UPDATE stats
-            SET elo = elo + 3
-            WHERE name = ?;
-            """;
-    private final String TAKE_FIVE_ELO = """
-            UPDATE stats
-            SET elo = elo - 5
-            WHERE name = ?;
-            """;
 
     private final Database database = new Database();
 

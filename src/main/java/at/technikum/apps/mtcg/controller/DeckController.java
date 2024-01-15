@@ -2,6 +2,7 @@ package at.technikum.apps.mtcg.controller;
 
 import at.technikum.apps.mtcg.entity.User;
 import at.technikum.apps.mtcg.entity.cards.Card;
+import at.technikum.apps.mtcg.repository.SessionRepository;
 import at.technikum.apps.mtcg.repository.UserRepository;
 import at.technikum.apps.mtcg.service.DeckService;
 import at.technikum.apps.mtcg.service.UserService;
@@ -19,11 +20,11 @@ public class DeckController extends Controller{
 
     private final DeckService deckService;
 
-    private final UserRepository userRepository;
+    private final SessionRepository sessionRepository;
 
 
     public DeckController() {this.deckService = new DeckService();
-    this.userRepository = new UserRepository();}
+    this.sessionRepository = new SessionRepository();}
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -61,7 +62,7 @@ public class DeckController extends Controller{
 
         String username = request.getUsername();
 
-        if(userRepository.findUser(username) == null)
+        if(sessionRepository.getUser(username) == null)
         {
             return status(HttpStatus.UNAUTHORIZED);
         }

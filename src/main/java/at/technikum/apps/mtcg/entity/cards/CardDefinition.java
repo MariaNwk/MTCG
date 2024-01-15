@@ -26,6 +26,7 @@ public class CardDefinition {
             case "watergoblin":
             case "firegoblin":
             case "regulargoblin":
+                return new CardDefinition(true, name.substring(0, name.length() - 6).toLowerCase());
             case "watertroll":
             case "firetroll":
             case "regulartroll":
@@ -43,6 +44,7 @@ public class CardDefinition {
             case "ork":
             case "kraken":
             case "wizzard":
+            case "switch":
                 return new CardDefinition(true, "regular");
             default:
                 throw new IllegalArgumentException("Invalid card type: " + name);

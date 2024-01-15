@@ -2,20 +2,28 @@ package at.technikum.apps.mtcg.service;
 
 import at.technikum.apps.mtcg.entity.Token;
 import at.technikum.apps.mtcg.entity.User;
-import at.technikum.apps.mtcg.repository.UserRepository;
+import at.technikum.apps.mtcg.repository.SessionRepository;
+
 
 import java.sql.SQLException;
 
 public class SessionService {
 
-    private final UserRepository userRepository;
+    private final SessionRepository sessionRepository;
 
-    public SessionService(UserRepository userRepository) {
-        this.userRepository = new UserRepository();
+    public SessionService() {
+        this.sessionRepository = new SessionRepository();
     }
 
     public Token login(User user) throws SQLException {
-        return userRepository.authenticate(user);
+
+        User userFromDB = sessionRepository.getUser(user.getUsername());
+
+        if(userFromDB == null || !userFromDB.getPassword().equals(user.getPassword())){
+            throw new SQLException("Invalid username/password provided");
+        }
+
+        return sessionRepository.login(userFromDB.getUsername());
     }
 
 }

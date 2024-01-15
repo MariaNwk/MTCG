@@ -20,7 +20,7 @@ public class BattleController extends Controller{
     private Request firstRequest;
     private List<CardExtended> playerOneDeck;
     private  List<CardExtended> playerTwoDeck;
-    private String battleLog;
+    private String battleLog = "";
     private String playerOne;
     private String playerTwo;
 
@@ -78,17 +78,17 @@ public class BattleController extends Controller{
 
     private Response waitForOpponent(Request request)  {
 
-            isBattlePending = true;
-            firstRequest = request;
-            battleLog= "";
+        isBattlePending = true;
+        firstRequest = request;
+        battleLog= "";
 
-            Response response = new Response();
-            response.setStatus(HttpStatus.OK);
-            response.setContentType(HttpContentType.APPLICATION_JSON);
-            response.setBody("Waiting for opponent");
-            return response;
+        Response response = new Response();
+        response.setStatus(HttpStatus.OK);
+        response.setContentType(HttpContentType.APPLICATION_JSON);
+        response.setBody("Waiting for opponent");
+        return response;
 
-        }
+    }
 
 
 
@@ -99,20 +99,20 @@ public class BattleController extends Controller{
 
         battleLog = startBattle(playerOne, playerTwo);
 
-            this.notify();
+        this.notify();
 
-            if (battleLog.equals(ERROR)) {
-                return status(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-
-            Response response = new Response();
-            response.setStatus(HttpStatus.OK);
-            response.setContentType(HttpContentType.APPLICATION_JSON);
-            response.setBody(battleLog);
-            return response;
-
-
+        if (battleLog.equals(ERROR)) {
+            return status(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+
+        Response response = new Response();
+        response.setStatus(HttpStatus.OK);
+        response.setContentType(HttpContentType.APPLICATION_JSON);
+        response.setBody(battleLog);
+        return response;
+
+
+    }
 
     public String startBattle(String playerOne, String playerTwo) {
 
@@ -228,49 +228,31 @@ public class BattleController extends Controller{
 
 
 
-
-
     private float spellFight(CardExtended attack, CardExtended defend, float damage) {
+        String attackElement = attack.element;
+        String defendElement = defend.element;
 
-        //water -> fire
-
-        if(attack.element.equals("water") && defend.element.equals("fire")){
-            battleLogList.add(" water is effective against fire. ");
-            return damage * 2;
+        switch (attackElement + "->" + defendElement) {
+            case "water->fire":
+                battleLogList.add(" water is effective against fire. ");
+                return damage * 2;
+            case "fire->water":
+                return damage / 2;
+            case "fire->regular":
+                battleLogList.add(" fire is effective against regular. ");
+                return damage * 2;
+            case "regular->fire":
+                return damage / 2;
+            case "regular->water":
+                battleLogList.add(" regular is effective against Water. ");
+                return damage * 2;
+            case "water->regular":
+                return damage / 2;
+            default:
+                return damage;
         }
-
-        //fire -> water
-
-        if(attack.element.equals("fire") && defend.element.equals("water")){
-            return damage / 2;
-        }
-
-        //fire -> regular
-        if(attack.element.equals("fire") && defend.element.equals("regular")){
-            battleLogList.add(" fire is effective against regular. ");
-            return damage * 2;
-        }
-
-        //regular -> fire
-
-        if(attack.element.equals("regular") && defend.element.equals("fire")){
-            return damage / 2;
-        }
-
-        //normal -> water
-        if (attack.element.equals("regular") && defend.element.equals("water"))
-        {
-            battleLogList.add(" regular is effective against Water. ");
-            return damage * 2;
-        }
-        // Water -> Normal
-        if (attack.element.equals("water") && defend.element.equals("regular"))
-        {
-            return damage / 2;
-        }
-
-        return damage;
     }
+
 
     private float monsterFight(CardExtended attack, CardExtended defend, float damage) {
 
@@ -386,4 +368,3 @@ public class BattleController extends Controller{
     }
 
 }
-

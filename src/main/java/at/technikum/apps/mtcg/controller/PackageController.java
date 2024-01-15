@@ -41,14 +41,14 @@ public class PackageController extends Controller{
     public Response createPackage(Request request) {
 
         ObjectMapper objectMapper = new ObjectMapper();
-        String token = request.getToken();
+
 
         if (request.getToken().equals("INVALID"))
         {
             return status(HttpStatus.UNAUTHORIZED);
         }
 
-        if(!token.equals("admin-mtcgToken")){
+        if(!request.isAdmin()){
             return status(HttpStatus.NOT_ADMIN);
         }
 

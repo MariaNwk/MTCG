@@ -23,7 +23,6 @@ public class MtcgApp implements ServerApplication {
         controllers.add(new ScoreboardController());
         controllers.add(new StatController());
         controllers.add(new CardController());
-        controllers.add(new TradingController());
         controllers.add(new TransactionController());
     }
 
