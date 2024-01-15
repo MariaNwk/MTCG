@@ -99,7 +99,7 @@ public class BattleController extends Controller{
         Response response = new Response();
         response.setStatus(HttpStatus.OK);
         response.setContentType(HttpContentType.APPLICATION_JSON);
-        response.setBody("Waiting for opponent");
+        response.setBody("Game successfully played");
 
         return response;
     }
@@ -149,23 +149,33 @@ public class BattleController extends Controller{
         battleLogList.add("-----------------------------------------");
 
         int rounds = 0;
-        int cardOneIndex;
-        int cardTwoIndex;
 
-        while(rounds < 100){
 
-            cardOneIndex = new Random().nextInt(playerOneDeck.size());
-            cardTwoIndex = new Random().nextInt(playerTwoDeck.size());
+        while( !playerOneDeck.isEmpty() && !playerTwoDeck.isEmpty() && rounds < 100){
 
-            fight(cardOneIndex,cardTwoIndex);
 
-            if (playerOneDeck.isEmpty() || playerTwoDeck.isEmpty()) {
+                int cardOneIndex = new Random().nextInt(playerOneDeck.size());
+                int cardTwoIndex = new Random().nextInt(playerTwoDeck.size());
+
+            if (cardOneIndex < 0 || cardOneIndex >= playerOneDeck.size() ||
+                    cardTwoIndex < 0 || cardTwoIndex >= playerTwoDeck.size()) {
+                battleLogList.add("Invalid indices generated during the battle.");
                 break;
             }
 
-            rounds++;
+                if (cardOneIndex < playerOneDeck.size() && cardTwoIndex < playerTwoDeck.size()) {
+                    fight(cardOneIndex, cardTwoIndex);
+                } else {
+                    // Fehlerbehandlung für ungültige Indizes
+                    battleLogList.add("Invalid indices generated during the battle.");
+                    break; // Beenden Sie die Schleife, um weitere Fehler zu verhindern
+                }
 
-        }
+
+
+                rounds++;
+
+            }
 
         battleLogList.add("---------------BATTLE OVER--------------------");
 
@@ -199,15 +209,42 @@ public class BattleController extends Controller{
 
     private void fight(int cardOneIndex, int cardTwoIndex) {
 
+
         float playerOneDamage = playerOneDeck.get(cardOneIndex).getDamage();
         float playerTwoDamage = playerTwoDeck.get(cardTwoIndex).getDamage();
 
-        playerOneDamage = categorizeFight(playerOneDeck.get(cardOneIndex), playerTwoDeck.get(cardTwoIndex), playerOneDamage);
-        playerTwoDamage = categorizeFight(playerTwoDeck.get(cardTwoIndex), playerOneDeck.get(cardOneIndex), playerTwoDamage);
+        boolean switchCards = playerOneDeck.get(cardOneIndex).card_name.contains("switch") || playerTwoDeck.get(cardTwoIndex).card_name.contains("switch");
 
-        checkDamage(playerOneDamage,playerTwoDamage, cardOneIndex, cardTwoIndex);
+        if(switchCards){
+            switchDecks(playerOneDeck,playerTwoDeck);
+
+            playerOneDamage = categorizeFight(playerOneDeck.get(cardTwoIndex), playerTwoDeck.get(cardOneIndex), playerOneDamage);
+            playerTwoDamage = categorizeFight(playerTwoDeck.get(cardOneIndex), playerOneDeck.get(cardTwoIndex), playerTwoDamage);
+
+            checkDamage(playerOneDamage,playerTwoDamage, cardTwoIndex, cardOneIndex);
+        }else{
+
+            playerOneDamage = categorizeFight(playerOneDeck.get(cardOneIndex), playerTwoDeck.get(cardTwoIndex), playerOneDamage);
+            playerTwoDamage = categorizeFight(playerTwoDeck.get(cardTwoIndex), playerOneDeck.get(cardOneIndex), playerTwoDamage);
+
+            checkDamage(playerOneDamage,playerTwoDamage, cardOneIndex, cardTwoIndex);
+        }
+
+
 
     }
+
+    private void switchDecks(List<CardExtended> playerOneDeck, List<CardExtended> playerTwoDeck) {
+
+        List<CardExtended> tempDeck =  new ArrayList<>(playerOneDeck);
+        playerOneDeck.clear();
+        playerOneDeck.addAll(playerTwoDeck);
+        playerTwoDeck.clear();
+        playerTwoDeck.addAll(tempDeck);
+        tempDeck.clear();
+        battleLogList.add(playerOne + " and " + playerTwo + " switched decks.");
+    }
+
 
     private void checkDamage(float playerOneDamage, float playerTwoDamage, int cardOne, int cardTwo ){
 

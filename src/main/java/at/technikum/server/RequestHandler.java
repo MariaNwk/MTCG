@@ -12,13 +12,13 @@ import java.net.Socket;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 public class RequestHandler implements Runnable {
 
     private BufferedReader in;
     private PrintWriter out;
 
     private final Socket client;
+
     private final ServerApplication app;
 
     public RequestHandler(Socket client, ServerApplication app) {
@@ -80,4 +80,6 @@ public class RequestHandler implements Runnable {
 
         return builder.toString();
     }
+
+
 }
