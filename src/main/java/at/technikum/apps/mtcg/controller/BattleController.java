@@ -16,7 +16,7 @@ import java.util.Random;
 public class BattleController extends Controller{
 
     private final BattleService battleService = new BattleService();
-    private boolean isBattlePending = false;
+
     private Request firstRequest;
     private List<CardExtended> playerOneDeck;
     private  List<CardExtended> playerTwoDeck;
@@ -37,8 +37,6 @@ public class BattleController extends Controller{
     @Override
     public Response handle(Request request) {
 
-
-
         if (request.getRoute().equals("/battles")) {
             switch (request.getMethod()) {
                 case "POST": return battle(request);
@@ -51,6 +49,8 @@ public class BattleController extends Controller{
         return status(HttpStatus.BAD_REQUEST);
 
     }
+
+    private boolean isBattlePending = false;
 
     public Response battle(Request request) {
 
@@ -78,16 +78,30 @@ public class BattleController extends Controller{
 
     private Response waitForOpponent(Request request)  {
 
-        isBattlePending = true;
-        firstRequest = request;
-        battleLog= "";
+            isBattlePending = true;
+            firstRequest = request;
+            battleLog = "";
+
+            // Wait until notified by the other thread
+            try {
+                while(battleLog.isEmpty())
+                    wait();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return status(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+
+
+        if (battleLog.equals("ERROR")) {
+            return status(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
         Response response = new Response();
         response.setStatus(HttpStatus.OK);
         response.setContentType(HttpContentType.APPLICATION_JSON);
         response.setBody("Waiting for opponent");
-        return response;
 
+        return response;
     }
 
 
@@ -96,10 +110,12 @@ public class BattleController extends Controller{
 
         playerOne = request.getUsername();
         playerTwo = firstRequest.getUsername();
-
         battleLog = startBattle(playerOne, playerTwo);
 
-        this.notify();
+
+        synchronized (this) {
+            notify();
+        }
 
         if (battleLog.equals(ERROR)) {
             return status(HttpStatus.INTERNAL_SERVER_ERROR);
