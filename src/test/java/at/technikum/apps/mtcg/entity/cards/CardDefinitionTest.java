@@ -27,9 +27,14 @@ class CardDefinitionTest {
         assertEquals("regular", definition.getElementType());
     }
 
+
     @Test
-    void createInvalidCardType() {
-        assertThrows(IllegalArgumentException.class, () -> CardDefinition.createDefinition("invalidcardtype"));
+    void createInvalidCardTypee() {
+        String invalidCardType = "invalidcardtype";
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> CardDefinition.createDefinition(invalidCardType));
+
+        assertEquals("Invalid card type: " + invalidCardType, exception.getMessage());
     }
 
 }
