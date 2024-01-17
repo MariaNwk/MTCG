@@ -6,21 +6,21 @@ Der Server wird im Main durch die socket Applikation gestartet. Der Server erhä
 anschließend die Applikation MtcgApp. Anschließend erhält der Server requests und
 sendet diese requests zur handle() Funktion und die hande() Funktion leitet den Request
 weiter zum entsprechenden Controller. Der Controller überprüft zum einen die Route
-im Request und zum anderen ist die gesamte Logik im Controller implemtiert. Der Service
-leitet den request weiter und kommuniziert hauptsächlich mit der Datenbank.
+im Request und zum anderen ist die gesamte Logik im Controller implementiert. Der Service
+leitet den request weiter ans Repository, welches hauptsächlich mit der Datenbank kommuniziert.
 Threads wurden hauptsächlich im BattleController verwendet. Wenn ein Battle gestartet wird,
 sind 2 Spieler dafür notwendig, welche gegeneinander spielen. Kommt also zunächst ein Request
 beim BattleController an, so muss dieser warten bis ein zweiter Request kommt. Erst wenn ein
 zweiter Request den BattleController aufruft, kann das Battle gestartet werden.
 
 Ich habe viel durch dieses Projekt gelernt. Während der Implementierung bin ich auf
-viele Fehler gestoßen, wodurch ich gelernt habe mit Fehlern umzugehen. Das beinhaltet
+viele Fehler gestoßen, wodurch ich gelernt habe, mit Fehlern umzugehen. Das beinhaltet
 den Debugger und das Recherchieren. Fehler haben dafür gesorgt sich intensiv mit dem Code
 auseinanderzusetzen, wodurch man auch den Code ins Detail zu verstehen gelernt hat. Es sind
 bei mir leider ständig Probleme aufgetreten... Angefangen bei HoppScotch mit "OPTIONS",
 der Implementierung der Repositories, bis hin zu den Threads im BattleController.
 Grundsätzlich hätte ich von Grund auf viele Dinge anders implementiert. Insbesondere die
-Architektur und "Ort" von Funktionen, wie zum Beispiel das authenfizieren.
+Architektur und den "Ort" von Funktionen, wie zum Beispiel das Authentifizieren.
 
 
 Unique Feature:
@@ -36,8 +36,8 @@ Mit meinen Unit Tests teste ich diverse Sachen: Controller, Entity CardDefinitio
 (dort habe ich Funktionen ergänzt) und Repositories.
 
 Bei den Controllern hab ich hauptsächlich die Responses getestet, ob nämlich die richtigen Responses generiert
-werden. Die Controller sind sehr wichtige Implementierungen, weshalb diese auch ausführlich getestet
-werden müssen.
+werden. Die Controller sind sehr wichtige Implementierungen und liefern wichtige Informationen zurück an den Client,
+,weshalb diese auch ausführlich getestet werden müssen.
 
 Die Repositories sind entscheidend für das Speichern von Daten in der Datenbank, weshalb auch hier geprüft werden muss,
 ob die Kommunikation mit der Datenbank funktioniert. Wichtig ist, dass die übergebenen Daten korrekt in der Datenbank
@@ -52,8 +52,8 @@ erzeugt wird, wird getestet, ob auch die entsprechende Fehleranzeige kommt.
 
 Time spend:
 
-Meinen ersten Commit hatte ich am 07.12.2023 und 11 Commits. Ich muss aber dazu sagen, dass ich davor schon ein
-Repository hatte mit paar Commits. Die meiste Zeit verbrachte ich an der Implentierung der Controller und Repositories. Die
-Battle Logik hat mich zum Ende hin auch sehr viel Zeit gekostet, sowie die Implementierung der Threads. Alles in Einem
-bin ich aber ziemlich konstant und gleichmäßig fortgeschritten und habe für jeden Controller 1-2 Tage gebraucht.
-Für die Battle Logik brauchte ich nochmal bisschen länger.
+Meinen ersten Commit hatte ich am 07.12.2023 und seitdem sind 11 Commits dazugekommen. Ich muss aber dazu sagen,
+dass ich davor schon ein Repository hatte mit paar Commits. Die meiste Zeit verbrachte ich an der Implentierung
+der Controller und Repositories. Die Battle Logik hat mich zum Ende hin auch sehr viel Zeit gekostet, sowie die
+Implementierung der Threads. Alles in Einem bin ich aber ziemlich konstant und gleichmäßig fortgeschritten und
+habe für jeden Controller 1-2 Tage gebraucht. Für die Battle Logik brauchte ich nochmal bisschen länger.
