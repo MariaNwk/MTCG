@@ -17,25 +17,20 @@ public class UserService {
 
         private final UserRepository userRepository;
 
-        public UserService(UserRepository userRepository) {
+        public UserService() {
             this.userRepository = new UserRepository();
         }
-
 
 
         public User save(User user) {
                 return userRepository.save(user);
         }
 
-
-
-
-    public Optional<UserData> getUserData(String username){
+        public Optional<UserData> getUserData(String username){
             return userRepository.getUserData(username);
     }
 
-
-    public void updateUser(String username, UserData userdata){
+        public void updateUser(String username, UserData userdata){
         userRepository.updateUser(username, userdata);
     }
 

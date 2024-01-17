@@ -40,7 +40,7 @@ public class TransactionController extends Controller{
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        if (request.getTokenNotAdmin().equals("INVALID"))
+        if (request.getToken().equals("INVALID")|| !request.getToken().contains("mtcgToken"))
         {
             return status(HttpStatus.UNAUTHORIZED);
         }

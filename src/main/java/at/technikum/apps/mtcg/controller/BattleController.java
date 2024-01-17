@@ -15,7 +15,9 @@ import java.util.Random;
 
 public class BattleController extends Controller{
 
-    private final BattleService battleService = new BattleService();
+    private final BattleService battleService;
+
+    public BattleController(BattleService battleService){this.battleService = battleService;}
 
     private Request firstRequest;
     private List<CardExtended> playerOneDeck;
@@ -54,7 +56,7 @@ public class BattleController extends Controller{
 
     public Response battle(Request request) {
 
-        if (request.getTokenNotAdmin().equals("INVALID"))
+        if (request.getToken().equals("INVALID")|| !request.getToken().contains("mtcgToken"))
         {
             return status(HttpStatus.UNAUTHORIZED);
         }
@@ -207,7 +209,7 @@ public class BattleController extends Controller{
 
     }
 
-    private void fight(int cardOneIndex, int cardTwoIndex) {
+    public void fight(int cardOneIndex, int cardTwoIndex) {
 
 
         float playerOneDamage = playerOneDeck.get(cardOneIndex).getDamage();
@@ -266,7 +268,7 @@ public class BattleController extends Controller{
 
 
 
-    private float categorizeFight(CardExtended attack, CardExtended defend, float damage) {
+    float categorizeFight(CardExtended attack, CardExtended defend, float damage) {
 
         if (!attack.isMonsterCard() && !defend.isMonsterCard()){
             return spellFight(attack, defend, damage);

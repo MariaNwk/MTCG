@@ -43,14 +43,16 @@ public class PackageController extends Controller{
         ObjectMapper objectMapper = new ObjectMapper();
 
 
-        if (request.getToken().equals("INVALID"))
+        if(!request.isAdmin()){
+            return status(HttpStatus.NOT_ADMIN);
+        }
+
+        if (request.getToken().equals("INVALID")|| !request.getToken().contains("mtcgToken"))
         {
             return status(HttpStatus.UNAUTHORIZED);
         }
 
-        if(!request.isAdmin()){
-            return status(HttpStatus.NOT_ADMIN);
-        }
+
 
 
         Card[] cards;

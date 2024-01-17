@@ -51,11 +51,6 @@ public class HttpMapper {
 
 
 
-
-
-
-
-
     private static String getToken(String httpRequest) throws IOException {
 
         String token = "empty";

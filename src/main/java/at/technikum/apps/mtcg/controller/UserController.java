@@ -3,6 +3,7 @@ package at.technikum.apps.mtcg.controller;
 import at.technikum.apps.mtcg.entity.User;
 import at.technikum.apps.mtcg.entity.UserData;
 import at.technikum.apps.mtcg.repository.UserRepository;
+import at.technikum.apps.mtcg.service.CardService;
 import at.technikum.apps.mtcg.service.UserService;
 import at.technikum.server.http.HttpContentType;
 import at.technikum.server.http.HttpStatus;
@@ -21,10 +22,10 @@ public class UserController extends Controller {
 
     private final UserService userService;
 
-
-    public UserController() {
-        this.userService = new UserService(new UserRepository());
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
+
 
     @Override
     public boolean supports(String route) {
@@ -77,7 +78,7 @@ public class UserController extends Controller {
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        User user = null;
+        User user;
 
         try {
             user = objectMapper.readValue(request.getBody(), User.class);
@@ -119,7 +120,7 @@ public class UserController extends Controller {
         ObjectMapper objectMapper = new ObjectMapper();
 
 
-        if (request.getTokenNotAdmin().equals("INVALID"))
+        if (request.getToken().equals("INVALID") || !request.getToken().contains("mtcgToken"))
         {
             return status(HttpStatus.UNAUTHORIZED);
         }
@@ -171,7 +172,7 @@ public class UserController extends Controller {
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        if (request.getTokenNotAdmin().equals("INVALID"))
+        if (request.getToken().equals("INVALID")|| !request.getToken().contains("mtcgToken"))
         {
             return status(HttpStatus.UNAUTHORIZED);
         }

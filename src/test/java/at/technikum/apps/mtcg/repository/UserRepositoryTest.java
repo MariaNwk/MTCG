@@ -21,6 +21,7 @@ class UserRepositoryTest {
 
         UserRepository userRepository = new UserRepository();
         User testUser = new User("testuser", "testpassword");
+
         // Test
         User savedUser = userRepository.save(testUser);
 
@@ -47,7 +48,6 @@ class UserRepositoryTest {
 
                 
     }
-
 
 
 }

@@ -8,8 +8,6 @@ import java.util.List;
 public class ScoreboardService {
     private final ScoreboardRepository scoreboardRepository;
 
-
-
     public ScoreboardService() {
         this.scoreboardRepository = new ScoreboardRepository();
     }

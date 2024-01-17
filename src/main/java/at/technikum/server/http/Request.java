@@ -45,24 +45,12 @@ public class Request {
         this.route = route;
     }
 
-    public String getHost() {
-        return host;
-    }
-
     public void setHost(String host) {
         this.host = host;
     }
 
-    public String getContentType() {
-        return contentType;
-    }
-
     public void setContentType(String contentType) {
         this.contentType = contentType;
-    }
-
-    public int getContentLength() {
-        return contentLength;
     }
 
     public void setContentLength(int contentLength) {
@@ -105,4 +93,5 @@ public class Request {
     {
         return getToken().equals("admin-mtcgToken");
     }
+
 }

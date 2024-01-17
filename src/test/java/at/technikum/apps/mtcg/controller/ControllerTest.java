@@ -1,5 +1,6 @@
 package at.technikum.apps.mtcg.controller;
 
+import at.technikum.apps.mtcg.service.*;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -10,14 +11,14 @@ class ControllerTest {
     void supports() {
 
         Controller sessionController = new SessionController();
-        Controller userController = new UserController();
+        Controller userController = new UserController(new UserService());
         Controller transactionController = new TransactionController();
         Controller packageController = new PackageController();
-        Controller cardController = new CardController();
+        Controller cardController = new CardController(new CardService());
         Controller deckController = new DeckController();
-        Controller statController = new StatController();
-        Controller scoreboardController = new ScoreboardController();
-        Controller battleController = new BattleController();
+        Controller statController = new StatController(new StatService());
+        Controller scoreboardController = new ScoreboardController(new ScoreboardService());
+        Controller battleController = new BattleController(new BattleService());
 
         assertTrue(sessionController.supports("/sessions"));
         assertTrue(userController.supports("/users"));

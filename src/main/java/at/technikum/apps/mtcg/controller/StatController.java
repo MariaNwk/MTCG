@@ -13,8 +13,11 @@ import java.util.Optional;
 
 public class StatController extends Controller{
 
-    private final StatService statService = new StatService();
+    private final StatService statService;
 
+    public StatController(StatService statService){
+        this.statService = statService;
+    }
     ObjectMapper objectMapper = new ObjectMapper();
     @Override
     public boolean supports(String route) {
@@ -42,7 +45,7 @@ public class StatController extends Controller{
 
 
 
-        if (request.getTokenNotAdmin().equals("INVALID"))
+        if (request.getToken().equals("INVALID")|| !request.getToken().contains("mtcgToken"))
         {
             return status(HttpStatus.UNAUTHORIZED);
         }

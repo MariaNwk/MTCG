@@ -15,7 +15,7 @@ import java.util.List;
 public class CardController extends Controller{
 
     private final CardService cardService;
-    public CardController(){this.cardService = new CardService();}
+    public CardController(CardService cardService){this.cardService = cardService;}
     private final ObjectMapper objectMapper = new ObjectMapper();
 
 
@@ -43,9 +43,7 @@ public class CardController extends Controller{
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        String token = request.getTokenNotAdmin();
-
-        if (request.getTokenNotAdmin().equals("INVALID"))
+        if (request.getToken().equals("INVALID")|| !request.getToken().contains("mtcgToken"))
         {
             return status(HttpStatus.UNAUTHORIZED);
         }

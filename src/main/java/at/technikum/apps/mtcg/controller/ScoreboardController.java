@@ -10,12 +10,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
-import java.util.Optional;
 
 public class ScoreboardController extends Controller{
 
-    private final ScoreboardService scoreboardService = new ScoreboardService();
+    private final ScoreboardService scoreboardService;
     ObjectMapper objectMapper = new ObjectMapper();
+
+    public ScoreboardController(ScoreboardService scoreboardService) {
+        this.scoreboardService = scoreboardService;
+    }
+
     @Override
     public boolean supports(String route) {
         return route.equals("/scoreboard");
@@ -42,11 +46,11 @@ public class ScoreboardController extends Controller{
     public Response retrieveScoreboard(Request request) {
 
 
-
-        if (request.getTokenNotAdmin().equals("INVALID"))
+        if (request.getToken().equals("INVALID") || !request.getToken().contains("mtcgToken"))
         {
             return status(HttpStatus.UNAUTHORIZED);
         }
+
 
         String username = request.getUsername();
 

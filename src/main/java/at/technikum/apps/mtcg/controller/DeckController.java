@@ -30,14 +30,14 @@ public class DeckController extends Controller{
 
     @Override
     public boolean supports(String route) {
-        return route.equals("/deck");
+        return route.startsWith("/deck");
     }
 
     @Override
     public Response handle(Request request) {
 
 
-        if (request.getRoute().equals("/deck")) {
+        if (request.getRoute().startsWith("/deck")) {
             switch (request.getMethod()) {
                 case "GET": return showDeck(request);
                 case "PUT": return configureDeck(request);
@@ -55,17 +55,13 @@ public class DeckController extends Controller{
 
     public Response configureDeck(Request request) {
 
-        if (request.getTokenNotAdmin().equals("INVALID"))
+        if (request.getToken().equals("INVALID")|| !request.getToken().contains("mtcgToken"))
         {
             return status(HttpStatus.UNAUTHORIZED);
         }
 
         String username = request.getUsername();
 
-        if(sessionRepository.getUser(username) == null)
-        {
-            return status(HttpStatus.UNAUTHORIZED);
-        }
 
         String[] cards;
 
@@ -101,7 +97,7 @@ public class DeckController extends Controller{
 
     public Response showDeck(Request request) {
 
-        if (request.getTokenNotAdmin().equals("INVALID"))
+        if (request.getTokenNotAdmin().equals("INVALID") || !request.getToken().contains("mtcgToken"))
         {
             return status(HttpStatus.UNAUTHORIZED);
         }
@@ -125,7 +121,16 @@ public class DeckController extends Controller{
             }
 
             if(request.getRoute().endsWith("format=plain")){
-                return status(HttpStatus.OK);
+                StringBuilder plainFormat = new StringBuilder();
+                for (Card card : cards) {
+                    plainFormat.append(card.getName()).append("\n");
+                }
+
+                Response response = new Response();
+                response.setStatus(HttpStatus.OK);
+                response.setContentType(HttpContentType.TEXT_PLAIN);  // Set content type to plain text
+                response.setBody(plainFormat.toString());
+                return response;
             }
 
 
